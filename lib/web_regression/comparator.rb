@@ -63,7 +63,12 @@ class WebRegression::Comparator < Struct.new(:reference_file,:host,:path,:option
   def compare
      ensure_reference_image
      
-     return SUCCESS if checksum_match?(self.reference_file,screenshot)
+     $stdout.puts "Comparing page at #{self.host}/#{self.path} with #{self.reference_file}"
+
+     if checksum_match?(self.reference_file,screenshot)
+        @stdout.puts "No differences found."
+        return SUCCESS
+     end
 
      diff = []
 
@@ -76,11 +81,15 @@ class WebRegression::Comparator < Struct.new(:reference_file,:host,:path,:option
        end
      end
  
-     return SUCCESS if diff.length == 0
+     if diff.length == 0
+        @stdout.puts "No differences found."
+        return SUCCESS
+     end
      
      unless options.nodiff
        highlight_diffs(new_image,diff)
      end
+     $stderr.puts "#{diff.length} pixels of difference found"
      
      return FAILURE
   end

@@ -26,13 +26,14 @@ module WebRegression
         
         opts.on("-f", "--fastfail","Fail as soon as a difference detected. Implies -n") do 
           options.fastfail = true
+          options.nodiff = true
         end
         
         opts.on("-n", "--nodiff","Don't create a diff png") do 
           options.nodiff = true
         end
         
-        opts.on("-o", "--opendiff","Open the diff file") do 
+        opts.on("-o", "--opendiff","Open a png showing diffs highlighted with red border") do 
           options.opendiff = true
         end
         
