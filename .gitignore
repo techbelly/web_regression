@@ -1,0 +1,7 @@
+*.gem
+.rvmrc
+*.tar.gz
+rdoc
+Gemfile.lock
+html
+pkg
