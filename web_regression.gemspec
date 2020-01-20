@@ -1,5 +1,5 @@
 require File.join([File.dirname(__FILE__),'lib','web_regression','version.rb'])
-spec = Gem::Specification.new do |s| 
+spec = Gem::Specification.new do |s|
   s.name = 'web_regression'
   s.version = WebRegression::VERSION
   s.author = 'Ben Griffiths'
@@ -14,10 +14,10 @@ bin/web-regression
   s.has_rdoc = false
   s.bindir = 'bin'
   s.executables << 'web-regression'
-  
+
   s.add_dependency('chunky_png')
-  s.add_dependency('poltergeist')
-  
+  s.add_dependency('grover')
+
   s.add_development_dependency('rake')
   s.add_development_dependency('rdoc')
 end

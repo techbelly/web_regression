@@ -1,22 +1,16 @@
-require 'capybara'
-require 'capybara/dsl'
-require 'capybara/poltergeist'
 require 'chunky_png'
-require 'tempfile'  
-
-Capybara.run_server = false
-Capybara.default_driver = :poltergeist
-Capybara.javascript_driver = :poltergeist
+require 'grover'
+require 'tempfile'
 
 class WebRegression::Comparator < Struct.new(:reference_file,:host,:path,:options)
-  include Capybara::DSL
 
   SUCCESS, FAILURE = 0,1
 
-  def take_screenshot(name)
-    Capybara.app_host = self.host
-    visit(self.path);
-    page.driver.render(name,:full => true)
+  def take_screenshot(file_name)
+    grover = Grover.new(self.host+'/'+self.path)
+    File.open(file_name, 'wb') do |file|
+      file.write(grover.to_png)
+    end
   end
 
   def ensure_reference_image
@@ -54,7 +48,7 @@ class WebRegression::Comparator < Struct.new(:reference_file,:host,:path,:option
      new_image.rect(x.min, y.min, x.max, y.max, ChunkyPNG::Color.rgb(255,0,0))
      diff_path = '/tmp/diff.png'
      new_image.save(diff_path)
-     
+
      if options.opendiff
        `open #{diff_path}`
      end
@@ -62,11 +56,11 @@ class WebRegression::Comparator < Struct.new(:reference_file,:host,:path,:option
 
   def compare
      ensure_reference_image
-     
+
      $stdout.puts "Comparing page at #{self.host}/#{self.path} with #{self.reference_file}"
 
      if checksum_match?(self.reference_file,screenshot)
-        @stdout.puts "No differences found."
+        $stdout.puts "No differences found."
         return SUCCESS
      end
 
@@ -76,21 +70,21 @@ class WebRegression::Comparator < Struct.new(:reference_file,:host,:path,:option
        reference_image.row(y).each_with_index do |pixel, x|
          unless pixel == new_image[x,y]
           return FAILURE if options.fastfail
-          diff << [x,y] 
+          diff << [x,y]
          end
        end
      end
- 
+
      if diff.length == 0
-        @stdout.puts "No differences found."
+        $stdout.puts "No differences found."
         return SUCCESS
      end
-     
+
      unless options.nodiff
        highlight_diffs(new_image,diff)
      end
      $stderr.puts "#{diff.length} pixels of difference found"
-     
+
      return FAILURE
   end
 
